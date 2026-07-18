@@ -1,0 +1,35 @@
+[tool]
+name = "supplyprescript-backend"
+version = "0.1.0"
+description = "SupplyPrescript – Closed-Loop Prescriptive Analytics"
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "pydantic",
+    "alembic",
+    "python-dotenv",
+    "xgboost",
+    "pandas",
+    "scikit-learn",
+    "pytest",
+    "httpx",
+    "loguru",
+    "asyncpg"
+]
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+pytest-asyncio = "^0.15"
+mypy = "^0.910"
+black = "^21.7b0"
+isort = "^5.9.3"
+flake8 = "^3.9.2"
