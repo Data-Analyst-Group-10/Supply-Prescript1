@@ -14,5 +14,8 @@ class Supplier(Base):
     rating = Column(Float)
 
     # Relationships
-    inventory_items = relationship("InventoryItem", back_populates="supplier")
-    orders = relationship("Order", back_populates="supplier")
+    inventory_items = relationship(
+        "InventoryItem",
+        back_populates="supplier",
+        cascade="all, delete-orphan",
+    )

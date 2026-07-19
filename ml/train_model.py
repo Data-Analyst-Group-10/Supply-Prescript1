@@ -18,7 +18,7 @@ def train_model(data_path, model_path):
 
 
     # ==============================
-    # 1. Select Target Column
+    # Target Column
     # ==============================
 
     target_column = "Shipping Mode"
@@ -33,11 +33,10 @@ def train_model(data_path, model_path):
 
 
     # ==============================
-    # 2. Remove unwanted columns
+    # Remove unwanted columns
     # ==============================
 
     drop_columns = [
-
         "Customer Email",
         "Customer Password",
         "Customer Fname",
@@ -46,33 +45,39 @@ def train_model(data_path, model_path):
         "Product Image",
         "order date (DateOrders)",
         "shipping date (DateOrders)"
-
     ]
 
 
-    for col in drop_columns:
-        if col in df.columns:
-            df.drop(col, axis=1, inplace=True)
+    df.drop(
+        columns=[col for col in drop_columns if col in df.columns],
+        inplace=True
+    )
 
 
+    # Remove target column
 
-    # Remove target from features
-
-    X = df.drop(target_column, axis=1)
-
+    X = df.drop(
+        target_column,
+        axis=1
+    )
 
 
     # ==============================
-    # 3. Convert categorical data
+    # Encode Features
     # ==============================
 
     print("Encoding categorical columns...")
 
-
     label_encoders = {}
 
 
-    for col in X.select_dtypes(include=["object"]).columns:
+    # Fixed pandas warning
+    categorical_columns = X.select_dtypes(
+        include=["object", "string"]
+    ).columns
+
+
+    for col in categorical_columns:
 
         encoder = LabelEncoder()
 
@@ -88,14 +93,14 @@ def train_model(data_path, model_path):
 
     target_encoder = LabelEncoder()
 
-    y = target_encoder.fit_transform(y.astype(str))
-
+    y = target_encoder.fit_transform(
+        y.astype(str)
+    )
 
 
     # ==============================
-    # 4. Split Data
+    # Train Test Split
     # ==============================
-
 
     X_train, X_test, y_train, y_test = train_test_split(
 
@@ -107,11 +112,9 @@ def train_model(data_path, model_path):
     )
 
 
-
     # ==============================
-    # 5. Train XGBoost
+    # Train XGBoost
     # ==============================
-
 
     print("Training model...")
 
@@ -132,11 +135,9 @@ def train_model(data_path, model_path):
     )
 
 
-
     # ==============================
-    # 6. Accuracy
+    # Accuracy
     # ==============================
-
 
     prediction = model.predict(X_test)
 
@@ -153,14 +154,12 @@ def train_model(data_path, model_path):
     )
 
 
-
     # ==============================
-    # 7. Save Model
+    # Save Model
     # ==============================
-
 
     os.makedirs(
-        "ml/model",
+        os.path.dirname(model_path),
         exist_ok=True
     )
 
@@ -186,7 +185,6 @@ def train_model(data_path, model_path):
 
 
 if __name__ == "__main__":
-
 
     train_model(
 

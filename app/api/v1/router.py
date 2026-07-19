@@ -7,7 +7,8 @@ from app.api.v1.endpoints import (
     orders,
     shipments,
     recommendations,
-    analytics
+    analytics,
+    prediction,
 )
 
 
@@ -54,4 +55,10 @@ api_router.include_router(
     analytics.router,
     prefix="/analytics",
     tags=["Analytics"]
+)
+
+api_router.include_router(
+    prediction.router,
+    prefix="",
+    tags=["Prediction"]
 )
