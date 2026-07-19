@@ -1,81 +1,53 @@
 # SupplyPrescript – Closed-Loop Prescriptive Analytics
 
 ## Overview
-SupplyPrescript is a FastAPI-based backend application designed to provide closed-loop prescriptive analytics for supply chain management. The application offers various endpoints for managing inventory, suppliers, orders, shipments, and generating recommendations based on historical data.
+
+SupplyPrescript is a FastAPI-based backend application designed to provide closed-loop prescriptive analytics for supply chain management.
+
+The application provides APIs for managing inventory, suppliers, orders, shipments, analytics, recommendations, and machine learning-based predictions using historical supply chain data.
+
+---
 
 ## Project Structure
-```
-supplyprescript-backend
-├── app
-│   ├── api
-│   ├── core
-│   ├── crud
-│   ├── db
-│   ├── models
-│   ├── schemas
-│   ├── services
-│   ├── utils
-│   └── main.py
-├── ml
-├── alembic
-├── tests
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── docker-compose.yml
-├── pyproject.toml
-├── requirements.txt
-└── README.md
-```
-
 ## Features
-- **Health Check Endpoint**: Verify the status of the API.
-- **Inventory Management**: CRUD operations for inventory items.
-- **Supplier Management**: CRUD operations for suppliers.
-- **Order Management**: Create and retrieve orders.
-- **Shipment Tracking**: Manage and track shipments.
-- **Recommendations**: Generate recommendations based on user input and historical data.
-- **Analytics**: Retrieve analytical data for better decision-making.
 
-## Getting Started
+### Health Check
+- Verify API availability and server status.
 
-### Prerequisites
-- Python 3.8 or higher
-- pip
-- Docker (optional)
+### Inventory Management
+- Create, read, update, and delete inventory records.
 
-### Installation
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   cd supplyprescript-backend
-   ```
+### Supplier Management
+- Manage supplier information.
 
-2. Install the required packages:
-   ```
-   pip install -r requirements.txt
-   ```
+### Order Management
+- Create and retrieve order details.
 
-3. Set up environment variables:
-   Copy `.env.example` to `.env` and update the values as needed.
+### Shipment Tracking
+- Track shipment information.
 
-### Running the Application
-To run the FastAPI application, execute:
-```
-uvicorn app.main:app --reload
-```
+### Analytics
+- Generate supply chain insights.
 
-### Docker
-To build and run the application using Docker, execute:
-```
-docker-compose up --build
-```
+### Recommendation System
+- Provide recommendations based on supply chain data.
 
-### Testing
-To run the tests, use:
-```
-pytest
-```
+### Machine Learning Prediction
+- Predict shipping mode using an XGBoost classification model.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+---
+
+## Machine Learning
+
+### Algorithm Used
+
+- XGBoost Classifier
+- Pandas
+- Scikit-learn
+- Label Encoder
+
+### Prediction Target
+Shipping Mode
+### Model File
+
+ml/model/xgboost_model.joblib
