@@ -1,11 +1,11 @@
-import pandas as pd
-import xgboost as xgb
-import joblib
 import os
+import pandas as pd
+import joblib
+import xgboost as xgb
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
 def train_model(data_path, model_path):
@@ -16,25 +16,22 @@ def train_model(data_path, model_path):
 
     print("Dataset shape:", df.shape)
 
-
-    # ==============================
-    # Target Column
-    # ==============================
-
+    # Target column
     target_column = "Shipping Mode"
 
     if target_column not in df.columns:
         print("Target column not found")
-        print(df.columns)
+        print("Available columns:")
+        print(df.columns.tolist())
         return
 
+
+    # Separate target
 
     y = df[target_column]
 
 
-    # ==============================
     # Remove unwanted columns
-    # ==============================
 
     drop_columns = [
         "Customer Email",
@@ -54,7 +51,7 @@ def train_model(data_path, model_path):
     )
 
 
-    # Remove target column
+    # Features
 
     X = df.drop(
         target_column,
@@ -62,16 +59,12 @@ def train_model(data_path, model_path):
     )
 
 
-    # ==============================
-    # Encode Features
-    # ==============================
-
-    print("Encoding categorical columns...")
-
-    label_encoders = {}
+    print("Encoding features...")
 
 
-    # Fixed pandas warning
+    encoders = {}
+
+
     categorical_columns = X.select_dtypes(
         include=["object", "string"]
     ).columns
@@ -85,7 +78,7 @@ def train_model(data_path, model_path):
             X[col].astype(str)
         )
 
-        label_encoders[col] = encoder
+        encoders[col] = encoder
 
 
 
@@ -98,9 +91,7 @@ def train_model(data_path, model_path):
     )
 
 
-    # ==============================
-    # Train Test Split
-    # ==============================
+    # Train test split
 
     X_train, X_test, y_train, y_test = train_test_split(
 
@@ -112,11 +103,7 @@ def train_model(data_path, model_path):
     )
 
 
-    # ==============================
-    # Train XGBoost
-    # ==============================
-
-    print("Training model...")
+    print("Training XGBoost model...")
 
 
     model = xgb.XGBClassifier(
@@ -135,11 +122,11 @@ def train_model(data_path, model_path):
     )
 
 
-    # ==============================
-    # Accuracy
-    # ==============================
+    # Prediction
 
-    prediction = model.predict(X_test)
+    prediction = model.predict(
+        X_test
+    )
 
 
     accuracy = accuracy_score(
@@ -148,15 +135,20 @@ def train_model(data_path, model_path):
     )
 
 
+    print("\nModel Accuracy:")
+    print(accuracy)
+
+
+    print("\nClassification Report:")
     print(
-        "Model Accuracy:",
-        accuracy
+        classification_report(
+            y_test,
+            prediction
+        )
     )
 
 
-    # ==============================
-    # Save Model
-    # ==============================
+    # Create model folder
 
     os.makedirs(
         os.path.dirname(model_path),
@@ -164,32 +156,37 @@ def train_model(data_path, model_path):
     )
 
 
+    # Save everything together
+
+    model_data = {
+
+        "model": model,
+
+        "encoders": encoders,
+
+        "target_encoder": target_encoder,
+
+        "features": X.columns.tolist()
+
+    }
+
+
     joblib.dump(
 
-        {
-            "model": model,
-            "encoders": label_encoders,
-            "target_encoder": target_encoder,
-            "features": X.columns.tolist()
-
-        },
+        model_data,
 
         model_path
 
     )
 
 
-    print("Model saved successfully")
-
-
+    print("\nModel saved successfully:")
+    print(model_path)
 
 
 if __name__ == "__main__":
 
     train_model(
-
         "dataset/DataCoSupplyChainDataset_cleaned (1).csv",
-
         "ml/model/xgboost_model.joblib"
-
     )
