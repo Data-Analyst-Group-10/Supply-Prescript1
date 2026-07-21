@@ -1,1 +1,0 @@
-2026-07-19 19:47:22,336 - httpx2 - INFO - HTTP Request: POST http://testserver/api/v1/predict "HTTP/1.1 200 OK"
