@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 import pandas as pd
 import joblib
@@ -5,9 +6,17 @@ import numpy as np
 
 class ForecastingService:
     def __init__(self, model_path: str):
-        self.model = joblib.load(model_path)
+        resolved_path = Path(model_path)
+        if not resolved_path.is_absolute():
+            resolved_path = Path(__file__).resolve().parents[1] / resolved_path
+        self.model_path = resolved_path
+        self.model = None
+        if self.model_path.exists():
+            self.model = joblib.load(self.model_path)
 
     def predict(self, features: List[float]) -> float:
+        if self.model is None:
+            raise RuntimeError(f"Model file not found at {self.model_path}")
         features_array = np.array(features).reshape(1, -1)
         prediction = self.model.predict(features_array)
         return prediction[0]

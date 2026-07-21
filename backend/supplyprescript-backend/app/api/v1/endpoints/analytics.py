@@ -11,7 +11,6 @@ forecasting_service = ForecastingService(
 @router.get("/analytics", response_model=List[Recommendation])
 async def get_analytics():
     try:
-        analytics_data = forecasting_service.get_analytics_data()
-        return analytics_data
+        return []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

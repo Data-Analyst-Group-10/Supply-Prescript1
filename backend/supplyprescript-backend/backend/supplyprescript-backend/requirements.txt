@@ -1,0 +1,14 @@
+FastAPI
+uvicorn
+pandas
+sqlalchemy
+alembic
+pydantic
+xgboost
+python-dotenv
+pytest
+httpx
+loguru
+fastapi-utils
+asyncpg
+databases

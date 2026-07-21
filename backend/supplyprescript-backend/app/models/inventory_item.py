@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 from app.db.base import Base
 
 class InventoryItem(Base):
@@ -9,7 +10,9 @@ class InventoryItem(Base):
     description = Column(String, nullable=True)
     quantity = Column(Integer, default=0)
     price = Column(Float, nullable=False)
-    supplier_id = Column(Integer, nullable=False)  # Foreign key to suppliers table
+    supplier_id = Column(Integer, ForeignKey("suppliers.id"), nullable=False)
+
+    supplier = relationship("Supplier", back_populates="inventory_items")
 
     def __repr__(self):
         return f"<InventoryItem(id={self.id}, name={self.name}, quantity={self.quantity}, price={self.price})>"

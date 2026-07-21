@@ -1,11 +1,11 @@
-import pandas as pd
-import xgboost as xgb
-import joblib
 import os
+import pandas as pd
+import joblib
+import xgboost as xgb
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
 def train_model(data_path, model_path):
@@ -16,28 +16,24 @@ def train_model(data_path, model_path):
 
     print("Dataset shape:", df.shape)
 
-
-    # ==============================
-    # 1. Select Target Column
-    # ==============================
-
+    # Target column
     target_column = "Shipping Mode"
 
     if target_column not in df.columns:
         print("Target column not found")
-        print(df.columns)
+        print("Available columns:")
+        print(df.columns.tolist())
         return
 
+
+    # Separate target
 
     y = df[target_column]
 
 
-    # ==============================
-    # 2. Remove unwanted columns
-    # ==============================
+    # Remove unwanted columns
 
     drop_columns = [
-
         "Customer Email",
         "Customer Password",
         "Customer Fname",
@@ -46,33 +42,35 @@ def train_model(data_path, model_path):
         "Product Image",
         "order date (DateOrders)",
         "shipping date (DateOrders)"
-
     ]
 
 
-    for col in drop_columns:
-        if col in df.columns:
-            df.drop(col, axis=1, inplace=True)
+    df.drop(
+        columns=[col for col in drop_columns if col in df.columns],
+        inplace=True
+    )
 
 
+    # Features
 
-    # Remove target from features
-
-    X = df.drop(target_column, axis=1)
-
-
-
-    # ==============================
-    # 3. Convert categorical data
-    # ==============================
-
-    print("Encoding categorical columns...")
+    X = df.drop(
+        target_column,
+        axis=1
+    )
 
 
-    label_encoders = {}
+    print("Encoding features...")
 
 
-    for col in X.select_dtypes(include=["object"]).columns:
+    encoders = {}
+
+
+    categorical_columns = X.select_dtypes(
+        include=["object", "string"]
+    ).columns
+
+
+    for col in categorical_columns:
 
         encoder = LabelEncoder()
 
@@ -80,7 +78,7 @@ def train_model(data_path, model_path):
             X[col].astype(str)
         )
 
-        label_encoders[col] = encoder
+        encoders[col] = encoder
 
 
 
@@ -88,14 +86,12 @@ def train_model(data_path, model_path):
 
     target_encoder = LabelEncoder()
 
-    y = target_encoder.fit_transform(y.astype(str))
+    y = target_encoder.fit_transform(
+        y.astype(str)
+    )
 
 
-
-    # ==============================
-    # 4. Split Data
-    # ==============================
-
+    # Train test split
 
     X_train, X_test, y_train, y_test = train_test_split(
 
@@ -107,13 +103,7 @@ def train_model(data_path, model_path):
     )
 
 
-
-    # ==============================
-    # 5. Train XGBoost
-    # ==============================
-
-
-    print("Training model...")
+    print("Training XGBoost model...")
 
 
     model = xgb.XGBClassifier(
@@ -132,13 +122,11 @@ def train_model(data_path, model_path):
     )
 
 
+    # Prediction
 
-    # ==============================
-    # 6. Accuracy
-    # ==============================
-
-
-    prediction = model.predict(X_test)
+    prediction = model.predict(
+        X_test
+    )
 
 
     accuracy = accuracy_score(
@@ -147,51 +135,58 @@ def train_model(data_path, model_path):
     )
 
 
+    print("\nModel Accuracy:")
+    print(accuracy)
+
+
+    print("\nClassification Report:")
     print(
-        "Model Accuracy:",
-        accuracy
+        classification_report(
+            y_test,
+            prediction
+        )
     )
 
 
-
-    # ==============================
-    # 7. Save Model
-    # ==============================
-
+    # Create model folder
 
     os.makedirs(
-        "ml/model",
+        os.path.dirname(model_path),
         exist_ok=True
     )
 
 
+    # Save everything together
+
+    model_data = {
+
+        "model": model,
+
+        "encoders": encoders,
+
+        "target_encoder": target_encoder,
+
+        "features": X.columns.tolist()
+
+    }
+
+
     joblib.dump(
 
-        {
-            "model": model,
-            "encoders": label_encoders,
-            "target_encoder": target_encoder,
-            "features": X.columns.tolist()
-
-        },
+        model_data,
 
         model_path
 
     )
 
 
-    print("Model saved successfully")
-
-
+    print("\nModel saved successfully:")
+    print(model_path)
 
 
 if __name__ == "__main__":
 
-
     train_model(
-
         "dataset/DataCoSupplyChainDataset_cleaned (1).csv",
-
         "ml/model/xgboost_model.joblib"
-
     )
