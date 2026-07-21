@@ -1,16 +1,53 @@
-# React + Vite
+# SupplyPrescript – Closed-Loop Prescriptive Analytics
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+SupplyPrescript is a FastAPI-based backend application designed to provide closed-loop prescriptive analytics for supply chain management.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The application provides APIs for managing inventory, suppliers, orders, shipments, analytics, recommendations, and machine learning-based predictions using historical supply chain data.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Project Structure
+## Features
 
-## Expanding the ESLint configuration
+### Health Check
+- Verify API availability and server status.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Inventory Management
+- Create, read, update, and delete inventory records.
+
+### Supplier Management
+- Manage supplier information.
+
+### Order Management
+- Create and retrieve order details.
+
+### Shipment Tracking
+- Track shipment information.
+
+### Analytics
+- Generate supply chain insights.
+
+### Recommendation System
+- Provide recommendations based on supply chain data.
+
+### Machine Learning Prediction
+- Predict shipping mode using an XGBoost classification model.
+
+---
+
+## Machine Learning
+
+### Algorithm Used
+
+- XGBoost Classifier
+- Pandas
+- Scikit-learn
+- Label Encoder
+
+### Prediction Target
+Shipping Mode
+### Model File
+
+ml/model/xgboost_model.joblib
