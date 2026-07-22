@@ -1,34 +1,26 @@
 from pydantic import BaseModel
-from typing import List
 
 
 class RecommendationBase(BaseModel):
-    item_id: int
-    predicted_demand: float
-    recommended_action: str
+    product_id: int
+    supplier_id: int
+    recommended_quantity: float
+    recommendation_reason: str
 
 
 class RecommendationCreate(RecommendationBase):
     pass
 
 
-class RecommendationUpdate(RecommendationBase):
-    pass
-
-
-class Recommendation(RecommendationBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+class RecommendationUpdate(BaseModel):
+    product_id: int | None = None
+    supplier_id: int | None = None
+    recommended_quantity: float | None = None
+    recommendation_reason: str | None = None
 
 
 class RecommendationResponse(RecommendationBase):
     id: int
 
     class Config:
-        orm_mode = True
-
-
-class RecommendationList(BaseModel):
-    recommendations: List[Recommendation]
+        from_attributes = True

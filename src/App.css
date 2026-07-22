@@ -82,3 +82,42 @@ button:disabled {
   color: #62748a;
   margin-top: 0.75rem;
 }
+.container {
+  display: flex;
+}
+
+.sidebar {
+  width: 230px;
+  background: #1e293b;
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px 0;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
