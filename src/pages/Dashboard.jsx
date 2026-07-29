@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+
 import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
+  Legend,
 } from "recharts";
 
 function Dashboard() {
@@ -16,30 +24,30 @@ function Dashboard() {
   const [prediction, setPrediction] = useState("Loading...");
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Orders
-        const ordersResponse = await API.get("/orders/");
-        setTotalOrders(ordersResponse.data.length);
-
-        // Inventory
-        const inventoryResponse = await API.get("/inventory/");
-        setInventory(inventoryResponse.data.length);
-
-        // Suppliers
-        const suppliersResponse = await API.get("/suppliers/");
-        setSuppliers(suppliersResponse.data.length);
-
-        // Prediction
-        setPrediction("Second Class");
-
-      } catch (error) {
-        console.error("Dashboard API Error:", error);
-      }
-    };
-
     fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [
+        ordersResponse,
+        inventoryResponse,
+        suppliersResponse,
+      ] = await Promise.all([
+        API.get("/orders/"),
+        API.get("/inventory/"),
+        API.get("/suppliers/"),
+      ]);
+
+      setTotalOrders(ordersResponse.data.length);
+      setInventory(inventoryResponse.data.length);
+      setSuppliers(suppliersResponse.data.length);
+
+      setPrediction("Second Class");
+    } catch (error) {
+      console.error("Dashboard API Error:", error);
+    }
+  };
 
   const chartData = [
     {
@@ -56,70 +64,182 @@ function Dashboard() {
     },
   ];
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+  const lineData = [
+    { month: "Jan", orders: 2 },
+    { month: "Feb", orders: 4 },
+    { month: "Mar", orders: 6 },
+    { month: "Apr", orders: 3 },
+    { month: "May", orders: 7 },
+    { month: "Jun", orders: totalOrders },
+  ];
 
-      <h1 className="text-3xl font-bold mb-6">
+  const COLORS = [
+    "#2563EB",
+    "#22C55E",
+    "#F97316",
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+
+      <h1 className="text-4xl font-bold mb-8">
         SupplyPrescript Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Cards */}
 
-        <div className="bg-white shadow rounded-lg p-5 text-center">
-          <h2 className="text-lg font-semibold">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-600">
             🛒 Total Orders
           </h2>
 
-          <p className="text-4xl font-bold mt-3 text-blue-600">
+          <p className="text-4xl font-bold text-blue-600 mt-4">
             {totalOrders}
           </p>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5 text-center">
-          <h2 className="text-lg font-semibold">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-600">
             📦 Inventory
           </h2>
 
-          <p className="text-4xl font-bold mt-3 text-green-600">
+          <p className="text-4xl font-bold text-green-600 mt-4">
             {inventory}
           </p>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5 text-center">
-          <h2 className="text-lg font-semibold">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-600">
             🏢 Suppliers
           </h2>
 
-          <p className="text-4xl font-bold mt-3 text-orange-600">
+          <p className="text-4xl font-bold text-orange-600 mt-4">
             {suppliers}
           </p>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-5 text-center">
-          <h2 className="text-lg font-semibold">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-lg font-semibold text-gray-600">
             🤖 Prediction
           </h2>
 
-          <p className="text-xl font-bold mt-3 text-purple-600">
+          <p className="text-2xl font-bold text-purple-600 mt-4">
             {prediction}
           </p>
         </div>
 
       </div>
 
-      <div className="mt-8 bg-white shadow rounded-lg p-6">
+      {/* Bar + Pie Charts */}
 
-        <h2 className="text-2xl font-bold mb-4">
-          Dashboard Analytics
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+        {/* Bar Chart */}
+
+        <div className="bg-white rounded-xl shadow-lg p-6">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Dashboard Analytics
+          </h2>
+
+          <ResponsiveContainer width="100%" height={350}>
+
+            <BarChart data={chartData}>
+
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis dataKey="name" />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Bar
+                dataKey="value"
+                fill="#2563EB"
+                radius={[8, 8, 0, 0]}
+              />
+
+            </BarChart>
+
+          </ResponsiveContainer>
+
+        </div>
+
+        {/* Pie Chart */}
+
+        <div className="bg-white rounded-xl shadow-lg p-6">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Data Distribution
+          </h2>
+
+          <ResponsiveContainer width="100%" height={350}>
+
+            <PieChart>
+
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={110}
+                label
+              >
+
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index]}
+                  />
+                ))}
+
+              </Pie>
+
+              <Tooltip />
+
+              <Legend />
+
+            </PieChart>
+
+          </ResponsiveContainer>
+
+        </div>
+
+      </div>
+
+      {/* Line Chart */}
+
+      <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+
+        <h2 className="text-2xl font-bold mb-6">
+          Monthly Orders Trend
         </h2>
 
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="name" />
+
+          <LineChart data={lineData}>
+
+            <CartesianGrid strokeDasharray="3 3" />
+
+            <XAxis dataKey="month" />
+
             <YAxis />
+
             <Tooltip />
-            <Bar dataKey="value" fill="#3B82F6" />
-          </BarChart>
+
+            <Legend />
+
+            <Line
+              type="monotone"
+              dataKey="orders"
+              stroke="#2563EB"
+              strokeWidth={3}
+            />
+
+          </LineChart>
+
         </ResponsiveContainer>
 
       </div>

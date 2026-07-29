@@ -3,8 +3,11 @@ import API from "../services/api";
 
 function Inventory() {
   const [inventory, setInventory] = useState([]);
+  const [search, setSearch] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [editingId, setEditingId] = useState(null);
+
+  const [newItem, setNewItem] = useState({
     name: "",
     description: "",
     quantity: "",
@@ -16,180 +19,275 @@ function Inventory() {
     fetchInventory();
   }, []);
 
+  // Read Inventory
   const fetchInventory = async () => {
     try {
       const response = await API.get("/inventory/");
       setInventory(response.data);
     } catch (error) {
-      console.error("Error fetching inventory:", error);
+      console.error(error);
     }
   };
 
+  // Input Change
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setNewItem({
+      ...newItem,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  // Create Inventory
+  const addInventory = async () => {
     try {
       await API.post("/inventory/", {
-        name: formData.name,
-        description: formData.description,
-        quantity: Number(formData.quantity),
-        price: Number(formData.price),
-        supplier_id: Number(formData.supplier_id),
+        name: newItem.name,
+        description: newItem.description,
+        quantity: Number(newItem.quantity),
+        price: Number(newItem.price),
+        supplier_id: Number(newItem.supplier_id),
       });
 
-      alert("Inventory added successfully!");
+      alert("Inventory Added Successfully");
 
-      setFormData({
-        name: "",
-        description: "",
-        quantity: "",
-        price: "",
-        supplier_id: "",
+      clearForm();
+      fetchInventory();
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to Add Inventory");
+    }
+  };
+
+  // Edit Inventory
+  const editInventory = (item) => {
+    setEditingId(item.id);
+
+    setNewItem({
+      name: item.name,
+      description: item.description,
+      quantity: item.quantity,
+      price: item.price,
+      supplier_id: item.supplier_id,
+    });
+  };
+
+  // Update Inventory
+  const updateInventory = async () => {
+    try {
+      await API.put(`/inventory/${editingId}`, {
+        name: newItem.name,
+        description: newItem.description,
+        quantity: Number(newItem.quantity),
+        price: Number(newItem.price),
+        supplier_id: Number(newItem.supplier_id),
       });
+
+      alert("Inventory Updated Successfully");
+
+      clearForm();
+      fetchInventory();
+
+    } catch (error) {
+      console.error(error);
+      alert("Update Failed");
+    }
+  };
+
+  // Delete Inventory
+  const deleteInventory = async (id) => {
+    if (!window.confirm("Delete this item?")) return;
+
+    try {
+      await API.delete(`/inventory/${id}`);
+
+      alert("Inventory Deleted");
 
       fetchInventory();
 
     } catch (error) {
-      console.error("Add Inventory Error:", error);
-      alert("Failed to add inventory.");
+      console.error(error);
+      alert("Delete Failed");
     }
   };
 
+  // Clear Form
+  const clearForm = () => {
+    setEditingId(null);
+
+    setNewItem({
+      name: "",
+      description: "",
+      quantity: "",
+      price: "",
+      supplier_id: "",
+    });
+  };
+
+  // Search
+  const filteredInventory = inventory.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
 
       <h1 className="text-3xl font-bold mb-6">
         Inventory Management
       </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
-      >
+      {/* Form */}
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Product Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border rounded p-2"
-          required
-        />
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
 
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="border rounded p-2"
-          required
-        />
+        <h2 className="text-2xl font-bold mb-4">
+          {editingId ? "Update Inventory" : "Add Inventory"}
+        </h2>
 
-        <input
-          type="number"
-          name="quantity"
-          placeholder="Quantity"
-          value={formData.quantity}
-          onChange={handleChange}
-          className="border rounded p-2"
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={formData.price}
-          onChange={handleChange}
-          className="border rounded p-2"
-          required
-        />
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={newItem.name}
+            onChange={handleChange}
+            className="border rounded p-2"
+          />
 
-        <input
-          type="number"
-          name="supplier_id"
-          placeholder="Supplier ID"
-          value={formData.supplier_id}
-          onChange={handleChange}
-          className="border rounded p-2"
-          required
-        />
+          <input
+            type="text"
+            name="description"
+            placeholder="Description"
+            value={newItem.description}
+            onChange={handleChange}
+            className="border rounded p-2"
+          />
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white rounded p-2 hover:bg-blue-700"
-        >
-          Add Inventory
-        </button>
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            value={newItem.quantity}
+            onChange={handleChange}
+            className="border rounded p-2"
+          />
 
-      </form>
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={newItem.price}
+            onChange={handleChange}
+            className="border rounded p-2"
+          />
 
-      <table className="table-auto w-full border-collapse border border-gray-300">
+          <input
+            type="number"
+            name="supplier_id"
+            placeholder="Supplier ID"
+            value={newItem.supplier_id}
+            onChange={handleChange}
+            className="border rounded p-2"
+          />
 
-        <thead className="bg-gray-100">
+        </div>
 
-          <tr>
-            <th className="border p-2">ID</th>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Description</th>
-            <th className="border p-2">Quantity</th>
-            <th className="border p-2">Price</th>
-            <th className="border p-2">Supplier ID</th>
-          </tr>
+        <div className="mt-5 space-x-3">
 
-        </thead>
+          <button
+            onClick={editingId ? updateInventory : addInventory}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded"
+          >
+            {editingId ? "Update Inventory" : "Add Inventory"}
+          </button>
 
-        <tbody>
+          {editingId && (
+            <button
+              onClick={clearForm}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded"
+            >
+              Cancel
+            </button>
+          )}
 
-          {inventory.length > 0 ? (
-            inventory.map((item) => (
-              <tr key={item.id}>
+        </div>
 
-                <td className="border p-2">{item.id}</td>
+      </div>
 
-                <td className="border p-2">{item.name}</td>
+      {/* Search */}
 
-                <td className="border p-2">
-                  {item.description}
-                </td>
+      <input
+        type="text"
+        placeholder="Search Inventory..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="border rounded p-2 w-full md:w-80 mb-6"
+      />
 
-                <td className="border p-2">
-                  {item.quantity}
-                </td>
+      {/* Table */}
 
-                <td className="border p-2">
-                  ₹{item.price}
-                </td>
+      <div className="bg-white rounded-lg shadow-lg overflow-x-auto">
 
-                <td className="border p-2">
-                  {item.supplier_id}
+        <table className="w-full">
+
+          <thead className="bg-blue-600 text-white">
+
+            <tr>
+              <th className="p-3">ID</th>
+              <th className="p-3">Name</th>
+              <th className="p-3">Description</th>
+              <th className="p-3">Quantity</th>
+              <th className="p-3">Price</th>
+              <th className="p-3">Supplier ID</th>
+              <th className="p-3">Actions</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {filteredInventory.map((item) => (
+
+              <tr
+                key={item.id}
+                className="border-b text-center hover:bg-gray-100"
+              >
+
+                <td className="p-3">{item.id}</td>
+                <td className="p-3">{item.name}</td>
+                <td className="p-3">{item.description}</td>
+                <td className="p-3">{item.quantity}</td>
+                <td className="p-3">₹{item.price}</td>
+                <td className="p-3">{item.supplier_id}</td>
+
+                <td className="p-3 space-x-2">
+
+                  <button
+                    onClick={() => editInventory(item)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteInventory(item.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+
                 </td>
 
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan="6"
-                className="border p-4 text-center"
-              >
-                No Inventory Found
-              </td>
-            </tr>
-          )}
 
-        </tbody>
+            ))}
 
-      </table>
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
   );
