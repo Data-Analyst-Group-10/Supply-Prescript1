@@ -2,24 +2,24 @@ import { useState } from "react";
 import { predictShipping } from "../services/api";
 
 function Prediction() {
-  const [features, setFeatures] = useState({
+  const [formData, setFormData] = useState({
     Type: "DEBIT",
     "Days for shipping (real)": 4,
     "Benefit per order": 35.5,
     "Sales per customer": 250,
-    "Delivery Status": "Advance shipping",
-    Category_Name: "Sporting Goods",
-    Customer_City: "Bangalore",
-    Product_Price: 250,
   });
 
-  const [prediction, setPrediction] = useState("");
+  const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
 
   const handleChange = (e) => {
-    setFeatures({
-      ...features,
-      [e.target.name]: e.target.value,
+    setFormData({
+      ...formData,
+      [e.target.name]:
+        e.target.type === "number"
+          ? Number(e.target.value)
+          : e.target.value,
     });
   };
 
@@ -27,72 +27,154 @@ function Prediction() {
     try {
       setLoading(true);
 
-      const result = await predictShipping(features);
+      const response = await predictShipping(formData);
 
-      setPrediction(result.prediction || result.predicted_label);
+      setResult(response.predicted_label);
+
+      setHistory((prev) => [
+        {
+          type: formData.Type,
+          prediction: response.predicted_label,
+          days: formData["Days for shipping (real)"],
+          sales: formData["Sales per customer"],
+        },
+        ...prev,
+      ]);
     } catch (error) {
-      alert("Prediction Failed");
       console.error(error);
+      alert("Prediction Failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-100 p-6">
+
       <h1 className="text-3xl font-bold mb-6">
         Shipping Prediction
       </h1>
 
-      <div className="space-y-4 max-w-xl">
+      <div className="bg-white rounded-xl shadow-lg p-6 max-w-xl">
 
         <input
-          className="border p-2 w-full"
+          className="border p-2 rounded w-full mb-3"
           name="Type"
-          value={features.Type}
+          value={formData.Type}
           onChange={handleChange}
           placeholder="Type"
         />
 
         <input
-          className="border p-2 w-full"
+          className="border p-2 rounded w-full mb-3"
+          type="number"
           name="Days for shipping (real)"
-          type="number"
-          value={features["Days for shipping (real)"]}
+          value={formData["Days for shipping (real)"]}
           onChange={handleChange}
         />
 
         <input
-          className="border p-2 w-full"
+          className="border p-2 rounded w-full mb-3"
+          type="number"
           name="Benefit per order"
-          type="number"
-          value={features["Benefit per order"]}
+          value={formData["Benefit per order"]}
           onChange={handleChange}
         />
 
         <input
-          className="border p-2 w-full"
-          name="Sales per customer"
+          className="border p-2 rounded w-full mb-3"
           type="number"
-          value={features["Sales per customer"]}
+          name="Sales per customer"
+          value={formData["Sales per customer"]}
           onChange={handleChange}
         />
 
         <button
           onClick={handlePredict}
-          className="bg-blue-600 text-white px-5 py-2 rounded"
+          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 w-full"
         >
           {loading ? "Predicting..." : "Predict"}
         </button>
 
-        {prediction && (
-          <div className="bg-green-100 p-4 rounded">
-            <h2 className="font-bold">Prediction Result</h2>
-            <p>{prediction}</p>
+        {result && (
+          <div className="mt-6 bg-green-100 border border-green-500 p-4 rounded">
+            <h2 className="font-bold text-lg">
+              Prediction Result
+            </h2>
+
+            <p className="text-2xl font-bold text-green-700 mt-2">
+              {result}
+            </p>
           </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+
+        <div className="flex justify-between items-center mb-4">
+
+          <h2 className="text-2xl font-bold">
+            Prediction History
+          </h2>
+
+          <button
+            onClick={() => setHistory([])}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Clear History
+          </button>
+
+        </div>
+
+        {history.length === 0 ? (
+
+          <p className="text-gray-500">
+            No predictions yet.
+          </p>
+
+        ) : (
+
+          <table className="w-full">
+
+            <thead className="bg-blue-600 text-white">
+
+              <tr>
+                <th className="p-3">Type</th>
+                <th className="p-3">Days</th>
+                <th className="p-3">Sales</th>
+                <th className="p-3">Prediction</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {history.map((item, index) => (
+
+                <tr
+                  key={index}
+                  className="border-b hover:bg-gray-100 text-center"
+                >
+
+                  <td className="p-3">{item.type}</td>
+                  <td className="p-3">{item.days}</td>
+                  <td className="p-3">{item.sales}</td>
+                  <td className="p-3 font-bold text-green-600">
+                    {item.prediction}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
         )}
 
       </div>
+
     </div>
   );
 }
