@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { predictShipping } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { toast } from "react-toastify";
 
 function Prediction() {
   const [formData, setFormData] = useState({
@@ -31,6 +33,8 @@ function Prediction() {
 
       setResult(response.predicted_label);
 
+      toast.success("Prediction Completed Successfully!");
+
       setHistory((prev) => [
         {
           type: formData.Type,
@@ -42,7 +46,7 @@ function Prediction() {
       ]);
     } catch (error) {
       console.error(error);
-      alert("Prediction Failed");
+      toast.error("Prediction Failed");
     } finally {
       setLoading(false);
     }
@@ -91,10 +95,13 @@ function Prediction() {
 
         <button
           onClick={handlePredict}
-          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 w-full"
+          disabled={loading}
+          className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 w-full"
         >
-          {loading ? "Predicting..." : "Predict"}
+          Predict
         </button>
+
+        {loading && <LoadingSpinner />}
 
         {result && (
           <div className="mt-6 bg-green-100 border border-green-500 p-4 rounded">
@@ -107,6 +114,7 @@ function Prediction() {
             </p>
           </div>
         )}
+
       </div>
 
       <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
@@ -155,14 +163,12 @@ function Prediction() {
                   key={index}
                   className="border-b hover:bg-gray-100 text-center"
                 >
-
                   <td className="p-3">{item.type}</td>
                   <td className="p-3">{item.days}</td>
                   <td className="p-3">{item.sales}</td>
                   <td className="p-3 font-bold text-green-600">
                     {item.prediction}
                   </td>
-
                 </tr>
 
               ))}
