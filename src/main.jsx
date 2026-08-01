@@ -11,11 +11,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        theme="colored"
-      />
     </BrowserRouter>
+
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={true}
+      closeOnClick
+      pauseOnHover
+      draggable
+      theme="colored"
+    />
   </React.StrictMode>
 );
