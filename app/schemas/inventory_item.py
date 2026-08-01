@@ -10,11 +10,11 @@ class InventoryItemBase(BaseModel):
     supplier_id: int
 
 
-class InventoryItemCreate(InventoryItemBase):
+class InventoryCreate(InventoryItemBase):
     pass
 
 
-class InventoryItemUpdate(InventoryItemBase):
+class InventoryUpdate(InventoryItemBase):
     pass
 
 
