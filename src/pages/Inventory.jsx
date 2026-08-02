@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import API from "../services/api";
+import API, { uploadInventoryExcel } from "../services/api";
 
 function Inventory() {
   const [inventory, setInventory] = useState([]);
   const [search, setSearch] = useState("");
-
   const [editingId, setEditingId] = useState(null);
+  const [excelFile, setExcelFile] = useState(null);
 
   const [newItem, setNewItem] = useState({
     name: "",
@@ -19,7 +19,6 @@ function Inventory() {
     fetchInventory();
   }, []);
 
-  // Read Inventory
   const fetchInventory = async () => {
     try {
       const response = await API.get("/inventory/");
@@ -29,7 +28,6 @@ function Inventory() {
     }
   };
 
-  // Input Change
   const handleChange = (e) => {
     setNewItem({
       ...newItem,
@@ -37,7 +35,17 @@ function Inventory() {
     });
   };
 
-  // Create Inventory
+  const clearForm = () => {
+    setEditingId(null);
+    setNewItem({
+      name: "",
+      description: "",
+      quantity: "",
+      price: "",
+      supplier_id: "",
+    });
+  };
+
   const addInventory = async () => {
     try {
       await API.post("/inventory/", {
@@ -49,17 +57,14 @@ function Inventory() {
       });
 
       alert("Inventory Added Successfully");
-
       clearForm();
       fetchInventory();
-
     } catch (error) {
       console.error(error);
       alert("Failed to Add Inventory");
     }
   };
 
-  // Edit Inventory
   const editInventory = (item) => {
     setEditingId(item.id);
 
@@ -72,7 +77,6 @@ function Inventory() {
     });
   };
 
-  // Update Inventory
   const updateInventory = async () => {
     try {
       await API.put(`/inventory/${editingId}`, {
@@ -84,47 +88,48 @@ function Inventory() {
       });
 
       alert("Inventory Updated Successfully");
-
       clearForm();
       fetchInventory();
-
     } catch (error) {
       console.error(error);
       alert("Update Failed");
     }
   };
 
-  // Delete Inventory
   const deleteInventory = async (id) => {
     if (!window.confirm("Delete this item?")) return;
 
     try {
       await API.delete(`/inventory/${id}`);
-
       alert("Inventory Deleted");
-
       fetchInventory();
-
     } catch (error) {
       console.error(error);
       alert("Delete Failed");
     }
   };
 
-  // Clear Form
-  const clearForm = () => {
-    setEditingId(null);
+  const handleExcelUpload = async () => {
+    if (!excelFile) {
+      alert("Please select an Excel file.");
+      return;
+    }
 
-    setNewItem({
-      name: "",
-      description: "",
-      quantity: "",
-      price: "",
-      supplier_id: "",
-    });
+    try {
+      const response = await uploadInventoryExcel(excelFile);
+
+      alert(
+        `${response.message}\nRecords Imported: ${response.records_imported}`
+      );
+
+      setExcelFile(null);
+      fetchInventory();
+    } catch (error) {
+      console.error(error);
+      alert("Excel Upload Failed");
+    }
   };
 
-  // Search
   const filteredInventory = inventory.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -136,7 +141,31 @@ function Inventory() {
         Inventory Management
       </h1>
 
-      {/* Form */}
+      {/* Excel Upload */}
+
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+
+        <h2 className="text-xl font-bold mb-4">
+          Import Inventory from Excel
+        </h2>
+
+        <input
+          type="file"
+          accept=".xlsx,.xls"
+          onChange={(e) => setExcelFile(e.target.files[0])}
+          className="mb-4"
+        />
+
+        <button
+          onClick={handleExcelUpload}
+          className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded"
+        >
+          Upload Excel
+        </button>
+
+      </div>
+
+      {/* Add / Update Form */}
 
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
 
@@ -147,48 +176,46 @@ function Inventory() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <input
-            type="text"
+            className="border rounded p-2"
             name="name"
             placeholder="Name"
             value={newItem.name}
             onChange={handleChange}
-            className="border rounded p-2"
           />
 
           <input
-            type="text"
+            className="border rounded p-2"
             name="description"
             placeholder="Description"
             value={newItem.description}
             onChange={handleChange}
-            className="border rounded p-2"
           />
 
           <input
+            className="border rounded p-2"
             type="number"
             name="quantity"
             placeholder="Quantity"
             value={newItem.quantity}
             onChange={handleChange}
-            className="border rounded p-2"
           />
 
           <input
+            className="border rounded p-2"
             type="number"
             name="price"
             placeholder="Price"
             value={newItem.price}
             onChange={handleChange}
-            className="border rounded p-2"
           />
 
           <input
+            className="border rounded p-2"
             type="number"
             name="supplier_id"
             placeholder="Supplier ID"
             value={newItem.supplier_id}
             onChange={handleChange}
-            className="border rounded p-2"
           />
 
         </div>
