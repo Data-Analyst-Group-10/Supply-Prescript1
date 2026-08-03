@@ -1,36 +1,54 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    UploadFile,
+    File
+)
+
 from sqlalchemy.orm import Session
 import pandas as pd
 
 from app.db.session import get_db
 from app.models.inventory_item import InventoryItem
-from app.schemas.inventory_item import InventoryCreate, InventoryUpdate
+from app.schemas.inventory_item import (
+    InventoryItemCreate,
+    InventoryItemUpdate,
+    InventoryItemResponse,
+)
 
 
 router = APIRouter()
 
 
-# =========================
-# GET ALL INVENTORY
-# =========================
+@router.get(
+    "/",
+    response_model=list[InventoryItemResponse]
+)
+def get_inventory(
+    db: Session = Depends(get_db)
+):
 
-@router.get("/")
-def get_inventory(db: Session = Depends(get_db)):
     return db.query(InventoryItem).all()
 
 
-# =========================
-# GET INVENTORY BY ID
-# =========================
 
-@router.get("/{inventory_id}")
+@router.get(
+    "/{inventory_id}",
+    response_model=InventoryItemResponse
+)
 def get_inventory_by_id(
     inventory_id: int,
     db: Session = Depends(get_db)
 ):
-    item = db.query(InventoryItem).filter(
-        InventoryItem.id == inventory_id
-    ).first()
+
+    item = (
+        db.query(InventoryItem)
+        .filter(
+            InventoryItem.id == inventory_id
+        )
+        .first()
+    )
 
     if not item:
         raise HTTPException(
@@ -41,13 +59,13 @@ def get_inventory_by_id(
     return item
 
 
-# =========================
-# CREATE INVENTORY
-# =========================
 
-@router.post("/")
+@router.post(
+    "/",
+    response_model=InventoryItemResponse
+)
 def create_inventory(
-    item: InventoryCreate,
+    item: InventoryItemCreate,
     db: Session = Depends(get_db)
 ):
 
@@ -62,21 +80,24 @@ def create_inventory(
     return inventory
 
 
-# =========================
-# UPDATE INVENTORY
-# =========================
 
-@router.put("/{inventory_id}")
+@router.put(
+    "/{inventory_id}",
+    response_model=InventoryItemResponse
+)
 def update_inventory(
     inventory_id: int,
-    item: InventoryUpdate,
-    db: Session = Depends(get_db),
+    item: InventoryItemUpdate,
+    db: Session = Depends(get_db)
 ):
 
-    inventory = db.query(InventoryItem).filter(
-        InventoryItem.id == inventory_id
-    ).first()
-
+    inventory = (
+        db.query(InventoryItem)
+        .filter(
+            InventoryItem.id == inventory_id
+        )
+        .first()
+    )
 
     if not inventory:
         raise HTTPException(
@@ -85,12 +106,10 @@ def update_inventory(
         )
 
 
-    update_data = item.model_dump(
+    for key, value in item.model_dump(
         exclude_unset=True
-    )
+    ).items():
 
-
-    for key, value in update_data.items():
         setattr(
             inventory,
             key,
@@ -105,20 +124,19 @@ def update_inventory(
 
 
 
-# =========================
-# DELETE INVENTORY
-# =========================
-
 @router.delete("/{inventory_id}")
 def delete_inventory(
     inventory_id: int,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
 
-    inventory = db.query(InventoryItem).filter(
-        InventoryItem.id == inventory_id
-    ).first()
-
+    inventory = (
+        db.query(InventoryItem)
+        .filter(
+            InventoryItem.id == inventory_id
+        )
+        .first()
+    )
 
     if not inventory:
         raise HTTPException(
@@ -137,74 +155,84 @@ def delete_inventory(
 
 
 
-# =========================
-# IMPORT INVENTORY FROM EXCEL
-# =========================
-
 @router.post("/upload")
 async def upload_inventory_excel(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
+
+    if not file.filename.endswith(
+        (".xlsx", ".xls")
+    ):
+
+        raise HTTPException(
+            status_code=400,
+            detail="Only Excel files are allowed"
+        )
+
 
     try:
 
-        if not file.filename.endswith(
-            (".xlsx", ".xls")
-        ):
-            raise HTTPException(
-                status_code=400,
-                detail="Please upload an Excel file."
-            )
+        df = pd.read_excel(
+            file.file
+        )
 
 
-        df = pd.read_excel(file.file)
-
-
-        required_columns = [
+        required_columns = {
             "name",
             "description",
             "quantity",
             "price",
-            "supplier_id",
-        ]
+            "supplier_id"
+        }
 
 
-        for column in required_columns:
-
-            if column not in df.columns:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Missing column: {column}"
-                )
+        missing = (
+            required_columns
+            -
+            set(df.columns)
+        )
 
 
-        count = 0
+        if missing:
+
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing columns: {list(missing)}"
+            )
+
+
+        items = []
 
 
         for _, row in df.iterrows():
 
-            inventory = InventoryItem(
-                name=row["name"],
-                description=row["description"],
-                quantity=int(row["quantity"]),
-                price=float(row["price"]),
-                supplier_id=int(row["supplier_id"]),
+            items.append(
+                InventoryItem(
+                    name=str(row["name"]),
+                    description=str(row["description"]),
+                    quantity=int(row["quantity"]),
+                    price=float(row["price"]),
+                    supplier_id=int(row["supplier_id"])
+                )
             )
 
 
-            db.add(inventory)
-
-            count += 1
-
+        db.bulk_save_objects(items)
 
         db.commit()
 
 
         return {
+
             "message": "Excel imported successfully",
-            "records_imported": count,
+            "records_imported": len(items)
+
         }
+
+
+    except HTTPException:
+        raise
 
 
     except Exception as e:

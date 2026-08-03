@@ -1,20 +1,32 @@
 from .supplier import Supplier
-from .inventory_item import InventoryItem
+from .inventory_item import (
+    InventoryItemBase,
+    InventoryItemCreate,
+    InventoryItemUpdate,
+    InventoryItemResponse,
+)
+
 from .order import Order
 from .shipment import Shipment
 
 from .recommendation import (
     RecommendationCreate,
     RecommendationUpdate,
-    RecommendationResponse
+    RecommendationResponse,
 )
 
-from .prediction import PredictionRequest, PredictionResponse
+from .prediction import (
+    PredictionRequest,
+    PredictionResponse,
+)
 
 
 __all__ = [
     "Supplier",
-    "InventoryItem",
+    "InventoryItemBase",
+    "InventoryItemCreate",
+    "InventoryItemUpdate",
+    "InventoryItemResponse",
     "Order",
     "Shipment",
     "RecommendationCreate",
