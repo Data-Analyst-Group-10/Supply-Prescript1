@@ -4,6 +4,7 @@ import API from "../services/api";
 function Suppliers() {
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [newSupplier, setNewSupplier] = useState({
     name: "",
@@ -11,12 +12,16 @@ function Suppliers() {
     email: "",
     phone: "",
     address: "",
+    rating: "",
   });
 
   useEffect(() => {
     fetchSuppliers();
   }, []);
 
+  // ==========================
+  // GET SUPPLIERS
+  // ==========================
   const fetchSuppliers = async () => {
     try {
       const response = await API.get("/suppliers/");
@@ -26,6 +31,9 @@ function Suppliers() {
     }
   };
 
+  // ==========================
+  // INPUT CHANGE
+  // ==========================
   const handleChange = (e) => {
     setNewSupplier({
       ...newSupplier,
@@ -33,27 +41,96 @@ function Suppliers() {
     });
   };
 
-  const addSupplier = async () => {
+  // ==========================
+  // ADD / UPDATE SUPPLIER
+  // ==========================
+  const saveSupplier = async () => {
     try {
-      await API.post("/suppliers/", newSupplier);
+      if (editingId) {
+        await API.put(`/suppliers/${editingId}`, {
+          ...newSupplier,
+          rating:
+            newSupplier.rating === ""
+              ? null
+              : Number(newSupplier.rating),
+        });
 
-      alert("Supplier Added Successfully");
+        alert("Supplier Updated Successfully");
+      } else {
+        await API.post("/suppliers/", {
+          ...newSupplier,
+          rating:
+            newSupplier.rating === ""
+              ? null
+              : Number(newSupplier.rating),
+        });
 
-      setNewSupplier({
-        name: "",
-        contact_person: "",
-        email: "",
-        phone: "",
-        address: "",
-      });
+        alert("Supplier Added Successfully");
+      }
 
+      clearForm();
       fetchSuppliers();
+
     } catch (error) {
       console.error(error);
-      alert("Failed to Add Supplier");
+      alert("Operation Failed");
     }
   };
 
+  // ==========================
+  // EDIT SUPPLIER
+  // ==========================
+  const editSupplier = (supplier) => {
+    setEditingId(supplier.id);
+
+    setNewSupplier({
+      name: supplier.name,
+      contact_person: supplier.contact_person,
+      email: supplier.email,
+      phone: supplier.phone,
+      address: supplier.address,
+      rating: supplier.rating ?? "",
+    });
+  };
+
+  // ==========================
+  // DELETE SUPPLIER
+  // ==========================
+  const deleteSupplier = async (id) => {
+    if (!window.confirm("Delete this supplier?")) return;
+
+    try {
+      await API.delete(`/suppliers/${id}`);
+
+      alert("Supplier Deleted Successfully");
+
+      fetchSuppliers();
+
+    } catch (error) {
+      console.error(error);
+      alert("Delete Failed");
+    }
+  };
+
+  // ==========================
+  // CLEAR FORM
+  // ==========================
+  const clearForm = () => {
+    setEditingId(null);
+
+    setNewSupplier({
+      name: "",
+      contact_person: "",
+      email: "",
+      phone: "",
+      address: "",
+      rating: "",
+    });
+  };
+
+  // ==========================
+  // SEARCH
+  // ==========================
   const filteredSuppliers = suppliers.filter((supplier) =>
     supplier.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -65,12 +142,12 @@ function Suppliers() {
         Suppliers Management
       </h1>
 
-      {/* Add Supplier */}
+      {/* Form */}
 
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
 
         <h2 className="text-2xl font-bold mb-4">
-          Add Supplier
+          {editingId ? "Update Supplier" : "Add Supplier"}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -117,17 +194,40 @@ function Suppliers() {
             placeholder="Address"
             value={newSupplier.address}
             onChange={handleChange}
-            className="border rounded p-2 md:col-span-2"
+            className="border rounded p-2"
+          />
+
+          <input
+            type="number"
+            step="0.1"
+            name="rating"
+            placeholder="Rating"
+            value={newSupplier.rating}
+            onChange={handleChange}
+            className="border rounded p-2"
           />
 
         </div>
 
-        <button
-          onClick={addSupplier}
-          className="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded"
-        >
-          Add Supplier
-        </button>
+        <div className="mt-5 space-x-3">
+
+          <button
+            onClick={saveSupplier}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded"
+          >
+            {editingId ? "Update Supplier" : "Add Supplier"}
+          </button>
+
+          {editingId && (
+            <button
+              onClick={clearForm}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded"
+            >
+              Cancel
+            </button>
+          )}
+
+        </div>
 
       </div>
 
@@ -141,7 +241,7 @@ function Suppliers() {
         className="border rounded p-2 w-full md:w-80 mb-6"
       />
 
-      {/* Suppliers Table */}
+      {/* Table */}
 
       <div className="bg-white rounded-lg shadow-lg overflow-x-auto">
 
@@ -156,6 +256,8 @@ function Suppliers() {
               <th className="p-3">Email</th>
               <th className="p-3">Phone</th>
               <th className="p-3">Address</th>
+              <th className="p-3">Rating</th>
+              <th className="p-3">Actions</th>
             </tr>
 
           </thead>
@@ -174,6 +276,26 @@ function Suppliers() {
                 <td className="p-3">{supplier.email}</td>
                 <td className="p-3">{supplier.phone}</td>
                 <td className="p-3">{supplier.address}</td>
+                <td className="p-3">{supplier.rating}</td>
+
+                <td className="p-3 space-x-2">
+
+                  <button
+                    onClick={() => editSupplier(supplier)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => deleteSupplier(supplier.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+
+                </td>
+
               </tr>
 
             ))}
