@@ -11,7 +11,7 @@ import Prediction from "./pages/Prediction";
 
 function App() {
   return (
-    <div className="flex">
+    <div className="flex bg-gray-100 min-h-screen">
 
       {/* Sidebar */}
       <Sidebar />
@@ -21,8 +21,7 @@ function App() {
 
         <Navbar />
 
-        <div className="p-6">
-
+        <main className="p-6">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/inventory" element={<Inventory />} />
@@ -30,8 +29,7 @@ function App() {
             <Route path="/suppliers" element={<Suppliers />} />
             <Route path="/prediction" element={<Prediction />} />
           </Routes>
-
-        </div>
+        </main>
 
       </div>
 

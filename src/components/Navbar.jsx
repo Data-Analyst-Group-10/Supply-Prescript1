@@ -1,22 +1,22 @@
 function Navbar() {
   return (
-    <div className="ml-64 bg-white shadow-md p-4 flex justify-between items-center">
+    <header className="h-16 bg-white shadow flex items-center justify-between px-8">
 
       <h1 className="text-2xl font-bold text-slate-800">
-        SupplyPrescript
+        Dashboard
       </h1>
 
       <div className="flex items-center gap-4">
-        <span className="font-semibold">
+        <span className="font-semibold text-gray-700">
           Admin
         </span>
 
-        <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+        <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
           Logout
         </button>
       </div>
 
-    </div>
+    </header>
   );
 }
 

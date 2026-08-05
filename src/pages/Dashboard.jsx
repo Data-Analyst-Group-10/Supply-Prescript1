@@ -41,33 +41,20 @@ function Dashboard() {
       ]);
 
       setTotalOrders(ordersResponse.data.length);
-      setRecentOrders(
-        ordersResponse.data.slice(-5).reverse()
-      );
-
       setInventory(inventoryResponse.data.length);
       setSuppliers(suppliersResponse.data.length);
+      setRecentOrders(ordersResponse.data.slice(-5).reverse());
 
       setPrediction("Second Class");
-
     } catch (error) {
       console.error("Dashboard API Error:", error);
     }
   };
 
   const chartData = [
-    {
-      name: "Orders",
-      value: totalOrders,
-    },
-    {
-      name: "Inventory",
-      value: inventory,
-    },
-    {
-      name: "Suppliers",
-      value: suppliers,
-    },
+    { name: "Orders", value: totalOrders },
+    { name: "Inventory", value: inventory },
+    { name: "Suppliers", value: suppliers },
   ];
 
   const lineData = [
@@ -79,25 +66,21 @@ function Dashboard() {
     { month: "Jun", orders: totalOrders },
   ];
 
-  const COLORS = [
-    "#2563EB",
-    "#22C55E",
-    "#F97316",
-  ];
+  const COLORS = ["#2563EB", "#22C55E", "#F97316"];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="bg-gray-100 min-h-full p-8">
 
-      <h1 className="text-4xl font-bold mb-8">
-        SupplyPrescript Dashboard
+      <h1 className="text-3xl font-bold text-slate-800 mb-8">
+        Dashboard Overview
       </h1>
 
-      {/* Dashboard Cards */}
+      {/* Cards */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-600">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+          <h2 className="text-gray-500 text-lg font-semibold">
             🛒 Total Orders
           </h2>
 
@@ -106,8 +89,8 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-600">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+          <h2 className="text-gray-500 text-lg font-semibold">
             📦 Inventory
           </h2>
 
@@ -116,8 +99,8 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-600">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+          <h2 className="text-gray-500 text-lg font-semibold">
             🏢 Suppliers
           </h2>
 
@@ -126,8 +109,8 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-600">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+          <h2 className="text-gray-500 text-lg font-semibold">
             🤖 Prediction
           </h2>
 
@@ -142,16 +125,13 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
 
-        {/* Bar Chart */}
+        <div className="bg-white rounded-xl shadow-md p-6">
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-xl font-bold mb-6">
             Dashboard Analytics
           </h2>
 
-          <ResponsiveContainer width="100%" height={350}>
-
+          <ResponsiveContainer width="100%" height={320}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -163,23 +143,18 @@ function Dashboard() {
                 fill="#2563EB"
                 radius={[8, 8, 0, 0]}
               />
-
             </BarChart>
-
           </ResponsiveContainer>
 
         </div>
 
-        {/* Pie Chart */}
+        <div className="bg-white rounded-xl shadow-md p-6">
 
-        <div className="bg-white rounded-xl shadow-lg p-6">
-
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-xl font-bold mb-6">
             Data Distribution
           </h2>
 
-          <ResponsiveContainer width="100%" height={350}>
-
+          <ResponsiveContainer width="100%" height={320}>
             <PieChart>
 
               <Pie
@@ -189,21 +164,18 @@ function Dashboard() {
                 outerRadius={110}
                 label
               >
-
                 {chartData.map((entry, index) => (
                   <Cell
                     key={index}
                     fill={COLORS[index]}
                   />
                 ))}
-
               </Pie>
 
               <Tooltip />
               <Legend />
 
             </PieChart>
-
           </ResponsiveContainer>
 
         </div>
@@ -212,16 +184,14 @@ function Dashboard() {
 
       {/* Line Chart */}
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-xl font-bold mb-6">
           Monthly Orders Trend
         </h2>
 
-        <ResponsiveContainer width="100%" height={350}>
-
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart data={lineData}>
-
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
@@ -234,55 +204,53 @@ function Dashboard() {
               stroke="#2563EB"
               strokeWidth={3}
             />
-
           </LineChart>
-
         </ResponsiveContainer>
 
       </div>
 
       {/* Recent Orders */}
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-xl font-bold mb-6">
           Recent Orders
         </h2>
 
-        <table className="w-full border-collapse">
+        <div className="overflow-x-auto">
 
-          <thead className="bg-blue-600 text-white">
+          <table className="w-full text-sm">
 
-            <tr>
-              <th className="p-3">Order ID</th>
-              <th className="p-3">Product ID</th>
-              <th className="p-3">Quantity</th>
-              <th className="p-3">Customer ID</th>
-            </tr>
+            <thead className="bg-slate-800 text-white">
 
-          </thead>
-
-          <tbody>
-
-            {recentOrders.map((order) => (
-
-              <tr
-                key={order.id}
-                className="border-b hover:bg-gray-100 text-center"
-              >
-
-                <td className="p-3">{order.id}</td>
-                <td className="p-3">{order.product_id}</td>
-                <td className="p-3">{order.quantity}</td>
-                <td className="p-3">{order.customer_id}</td>
-
+              <tr>
+                <th className="p-3">Order ID</th>
+                <th className="p-3">Product ID</th>
+                <th className="p-3">Quantity</th>
+                <th className="p-3">Customer ID</th>
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {recentOrders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="border-b hover:bg-gray-100 text-center"
+                >
+                  <td className="p-3">{order.id}</td>
+                  <td className="p-3">{order.product_id}</td>
+                  <td className="p-3">{order.quantity}</td>
+                  <td className="p-3">{order.customer_id}</td>
+                </tr>
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
