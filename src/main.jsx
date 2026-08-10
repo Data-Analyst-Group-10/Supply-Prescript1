@@ -11,6 +11,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

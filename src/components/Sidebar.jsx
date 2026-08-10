@@ -1,55 +1,49 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Sidebar() {
-  return (
-    <div className="w-64 h-screen bg-slate-900 text-white fixed left-0 top-0 shadow-lg">
+  const linkClass = ({ isActive }) =>
+    `block px-6 py-3 transition ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "text-gray-200 hover:bg-slate-700 hover:text-white"
+    }`;
 
-      <div className="p-6 text-center border-b border-slate-700">
-        <h1 className="text-2xl font-bold">
+  return (
+    <aside className="fixed left-0 top-0 w-64 h-screen bg-slate-900 text-white z-50">
+      
+      <div className="p-4 border-b border-slate-700">
+        <h1 className="text-3xl font-bold">
           SupplyPrescript
         </h1>
+
+        <p className="text-sm text-gray-400 mt-1">
+          Supply Chain Management
+        </p>
       </div>
 
-      <nav className="mt-6">
-
-        <Link
-          to="/"
-          className="block px-6 py-3 hover:bg-slate-700 transition"
-        >
+      <nav className="py-4">
+        <NavLink to="/" end className={linkClass}>
           🏠 Dashboard
-        </Link>
+        </NavLink>
 
-        <Link
-          to="/inventory"
-          className="block px-6 py-3 hover:bg-slate-700 transition"
-        >
+        <NavLink to="/inventory" className={linkClass}>
           📦 Inventory
-        </Link>
+        </NavLink>
 
-        <Link
-          to="/orders"
-          className="block px-6 py-3 hover:bg-slate-700 transition"
-        >
+        <NavLink to="/orders" className={linkClass}>
           🛒 Orders
-        </Link>
+        </NavLink>
 
-        <Link
-          to="/suppliers"
-          className="block px-6 py-3 hover:bg-slate-700 transition"
-        >
+        <NavLink to="/suppliers" className={linkClass}>
           🏢 Suppliers
-        </Link>
+        </NavLink>
 
-        <Link
-          to="/prediction"
-          className="block px-6 py-3 hover:bg-slate-700 transition"
-        >
+        <NavLink to="/prediction" className={linkClass}>
           🤖 Prediction
-        </Link>
-
+        </NavLink>
       </nav>
 
-    </div>
+    </aside>
   );
 }
 

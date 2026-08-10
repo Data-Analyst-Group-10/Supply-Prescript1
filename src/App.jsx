@@ -11,17 +11,19 @@ import Prediction from "./pages/Prediction";
 
 function App() {
   return (
-    <div className="flex bg-gray-100 min-h-screen">
+    <div className="min-h-screen bg-gray-100">
 
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-64">
+      {/* Main Area */}
+      <div className="ml-64 min-h-screen">
 
+        {/* Navbar */}
         <Navbar />
 
-        <main className="p-6">
+        {/* Page Content */}
+        <main className="p-4 md:p-6 overflow-x-hidden">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/inventory" element={<Inventory />} />
