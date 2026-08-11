@@ -40,21 +40,39 @@ function Dashboard() {
         API.get("/suppliers/"),
       ]);
 
-      setTotalOrders(ordersResponse.data.length);
-      setInventory(inventoryResponse.data.length);
-      setSuppliers(suppliersResponse.data.length);
-      setRecentOrders(ordersResponse.data.slice(-5).reverse());
+      const orders = ordersResponse.data || [];
+      const inventoryData = inventoryResponse.data || [];
+      const suppliersData = suppliersResponse.data || [];
+
+      setTotalOrders(orders.length);
+      setInventory(inventoryData.length);
+      setSuppliers(suppliersData.length);
+
+      setRecentOrders(
+        orders.slice(-5).reverse()
+      );
 
       setPrediction("Second Class");
     } catch (error) {
       console.error("Dashboard API Error:", error);
+
+      setPrediction("Unavailable");
     }
   };
 
   const chartData = [
-    { name: "Orders", value: totalOrders },
-    { name: "Inventory", value: inventory },
-    { name: "Suppliers", value: suppliers },
+    {
+      name: "Orders",
+      value: totalOrders,
+    },
+    {
+      name: "Inventory",
+      value: inventory,
+    },
+    {
+      name: "Suppliers",
+      value: suppliers,
+    },
   ];
 
   const lineData = [
@@ -66,20 +84,31 @@ function Dashboard() {
     { month: "Jun", orders: totalOrders },
   ];
 
-  const COLORS = ["#2563EB", "#22C55E", "#F97316"];
+  const COLORS = [
+    "#2563EB",
+    "#22C55E",
+    "#F97316",
+  ];
 
   return (
-    <div className="bg-gray-100 min-h-full p-8">
+    <div className="w-full max-w-full overflow-hidden">
 
-      <h1 className="text-3xl font-bold text-slate-800 mb-8">
-        Dashboard Overview
-      </h1>
+      {/* Dashboard Title */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-800">
+          Dashboard Overview
+        </h1>
 
-      {/* Cards */}
+        <p className="text-gray-500 mt-1">
+          Supply Chain Management Analytics
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 w-full">
 
-        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+        {/* Orders */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
           <h2 className="text-gray-500 text-lg font-semibold">
             🛒 Total Orders
           </h2>
@@ -89,7 +118,8 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+        {/* Inventory */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
           <h2 className="text-gray-500 text-lg font-semibold">
             📦 Inventory
           </h2>
@@ -99,7 +129,8 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+        {/* Suppliers */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
           <h2 className="text-gray-500 text-lg font-semibold">
             🏢 Suppliers
           </h2>
@@ -109,12 +140,13 @@ function Dashboard() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition p-6">
+        {/* Prediction */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
           <h2 className="text-gray-500 text-lg font-semibold">
             🤖 Prediction
           </h2>
 
-          <p className="text-2xl font-bold text-purple-600 mt-4">
+          <p className="text-2xl font-bold text-purple-600 mt-4 break-words">
             {prediction}
           </p>
         </div>
@@ -122,129 +154,210 @@ function Dashboard() {
       </div>
 
       {/* Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mt-6 w-full">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        {/* Bar Chart */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-
-          <h2 className="text-xl font-bold mb-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">
             Dashboard Analytics
           </h2>
 
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+          <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+              <BarChart
+                data={chartData}
+                margin={{
+                  top: 10,
+                  right: 20,
+                  left: 0,
+                  bottom: 10,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
 
-              <Bar
-                dataKey="value"
-                fill="#2563EB"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+                <XAxis dataKey="name" />
+
+                <YAxis />
+
+                <Tooltip />
+
+                <Bar
+                  dataKey="value"
+                  fill="#2563EB"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
+        {/* Pie Chart */}
+        <div className="bg-white rounded-xl shadow-md p-5 min-w-0">
 
-          <h2 className="text-xl font-bold mb-6">
+          <h2 className="text-xl font-bold text-slate-800 mb-4">
             Data Distribution
           </h2>
 
-          <ResponsiveContainer width="100%" height={320}>
-            <PieChart>
+          <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+              <PieChart>
 
-              <Pie
-                data={chartData}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={110}
-                label
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index]}
-                  />
-                ))}
-              </Pie>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={100}
+                  label
+                >
+                  {chartData.map(
+                    (entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index]}
+                      />
+                    )
+                  )}
+                </Pie>
 
-              <Tooltip />
-              <Legend />
+                <Tooltip />
 
-            </PieChart>
-          </ResponsiveContainer>
+                <Legend />
+
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
         </div>
 
       </div>
 
-      {/* Line Chart */}
+      {/* Monthly Orders */}
+      <div className="bg-white rounded-xl shadow-md p-5 mt-6 min-w-0">
 
-      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
-
-        <h2 className="text-xl font-bold mb-6">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">
           Monthly Orders Trend
         </h2>
 
-        <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={lineData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
+        <div className="w-full h-[300px] min-w-0">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+            <LineChart
+              data={lineData}
+              margin={{
+                top: 10,
+                right: 20,
+                left: 0,
+                bottom: 10,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
 
-            <Line
-              type="monotone"
-              dataKey="orders"
-              stroke="#2563EB"
-              strokeWidth={3}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+              <XAxis dataKey="month" />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Legend />
+
+              <Line
+                type="monotone"
+                dataKey="orders"
+                stroke="#2563EB"
+                strokeWidth={3}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
       </div>
 
       {/* Recent Orders */}
+      <div className="bg-white rounded-xl shadow-md p-5 mt-6 min-w-0">
 
-      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
-
-        <h2 className="text-xl font-bold mb-6">
+        <h2 className="text-xl font-bold text-slate-800 mb-5">
           Recent Orders
         </h2>
 
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto">
 
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[600px] text-sm">
 
             <thead className="bg-slate-800 text-white">
 
               <tr>
-                <th className="p-3">Order ID</th>
-                <th className="p-3">Product ID</th>
-                <th className="p-3">Quantity</th>
-                <th className="p-3">Customer ID</th>
+                <th className="p-3">
+                  Order ID
+                </th>
+
+                <th className="p-3">
+                  Product ID
+                </th>
+
+                <th className="p-3">
+                  Quantity
+                </th>
+
+                <th className="p-3">
+                  Customer ID
+                </th>
               </tr>
 
             </thead>
 
             <tbody>
 
-              {recentOrders.map((order) => (
-                <tr
-                  key={order.id}
-                  className="border-b hover:bg-gray-100 text-center"
-                >
-                  <td className="p-3">{order.id}</td>
-                  <td className="p-3">{order.product_id}</td>
-                  <td className="p-3">{order.quantity}</td>
-                  <td className="p-3">{order.customer_id}</td>
+              {recentOrders.length > 0 ? (
+                recentOrders.map((order) => (
+
+                  <tr
+                    key={order.id}
+                    className="border-b hover:bg-gray-100 text-center"
+                  >
+
+                    <td className="p-3">
+                      {order.id}
+                    </td>
+
+                    <td className="p-3">
+                      {order.product_id}
+                    </td>
+
+                    <td className="p-3">
+                      {order.quantity}
+                    </td>
+
+                    <td className="p-3">
+                      {order.customer_id}
+                    </td>
+
+                  </tr>
+
+                ))
+              ) : (
+
+                <tr>
+                  <td
+                    colSpan="4"
+                    className="p-6 text-center text-gray-500"
+                  >
+                    No recent orders found
+                  </td>
                 </tr>
-              ))}
+
+              )}
 
             </tbody>
 
